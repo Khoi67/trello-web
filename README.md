@@ -30,7 +30,7 @@
 * "eslint-plugin-react-refresh": "^0.3.4"
 ```
 
-### About Me - Thông tin về mình:
+### About Me - Thông tin về tác giả:
 
 Author: **Trungquandev - Một Lập Trình Viên** & **CodeTQ**
 
