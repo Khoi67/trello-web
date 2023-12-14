@@ -1,4 +1,3 @@
-// Updated by trungquandev.com's author on May 13 2023
 // Sample Eslint config for Node.js project
 module.exports = {
   env: { browser: true, es2020: true, node: true },
@@ -6,8 +5,24 @@ module.exports = {
   parser: '@babel/eslint-parser',
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module', allowImportExportEverywhere: true },
   settings: { react: { version: '18.2' } },
-  plugins: [],
+  plugins: [
+    'react','react-hooks','react-refresh'
+  ],
   rules: {
+    //React
+    'react-refresh/only-export-components':'warn',
+    'react-hooks/rules-of-hooks':'error',
+    'react-hooks/exhaustive-deps':'warn',
+    'react/prop-types': 0,
+    'react/display-name': 0,
+    //MUI
+    'no-restricted-imports': [
+      'error',
+      {
+        'patterns': ['@mui/*/*/*']
+      }
+    ],
+    //Common
     'no-console': 1,
     'no-lonely-if': 1,
     'no-unused-vars': 1,
