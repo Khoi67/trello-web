@@ -12,4 +12,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <App />
     </CssVarsProvider>
   </React.StrictMode>
-);
+)
+
