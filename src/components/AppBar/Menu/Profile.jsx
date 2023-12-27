@@ -33,7 +33,7 @@ function Profile() {
           aria-expanded={open ? 'true' : undefined}
         >
           <Avatar
-            sx={{ width: 32, height: 32 }}
+            sx={{ width: 34, height: 34 }}
             alt="Khoi"
             src="https://lh3.googleusercontent.com/a/ACg8ocJwH-5Ua3iHcSyJ7UsvP-7loQ0mshhpiYOn1x9IpgSh5CY=s288-c-no"
           />
