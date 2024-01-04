@@ -10,9 +10,13 @@ import {
   useSensors,
   DragOverlay,
   defaultDropAnimationSideEffects,
-  closestCorners
+  closestCorners,
+  pointerWithin,
+  rectIntersection,
+  getFirstCollision,
+  closestCenter
 } from '@dnd-kit/core'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
@@ -53,6 +57,8 @@ function BoardContent({ board }) {
   const [activeDragItemType, setActiveDragItemType] = useState(null)
   const [activeDragItemData, setActiveDragItemData] = useState(null)
   const [oldColumnWhenDraggingCard, setOldColumnWhenDraggingCard] = useState(null)
+
+  const lastOverId = useRef(null)
 
   useEffect(() => {
     setOrderredColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'))
@@ -211,10 +217,37 @@ function BoardContent({ board }) {
       }
     })
   }
+  const collisionDetectionStrategy = useCallback((args) => {
+    if (activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) {
+      return closestCorners({ ...args })
+    }
+
+    const pointerIntersections = pointerWithin(args)
+    const intersections = !!pointerIntersections?.length
+      ? pointerIntersections
+      : rectIntersection(args)
+    let overId = getFirstCollision(intersections, 'id')
+    if (overId) {
+      const checkColumn = orderredColumns.find(column => column._id === overId)
+      if (checkColumn) {
+        overId = closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter(container => container.id !== overId && checkColumn.cardOrderIds?.includes(container.id))
+        })[0]?.id
+      }
+
+      lastOverId.current = overId
+      return [{ id: overId }]
+    }
+
+    return lastOverId.current ? [{ id: lastOverId.current }] : []
+  }, [activeDragItemType, orderredColumns])
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      // collisionDetection={closestCorners}
+      collisionDetection={collisionDetectionStrategy}
+
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
