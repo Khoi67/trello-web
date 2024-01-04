@@ -20,7 +20,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatters'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACTIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -118,6 +119,12 @@ function BoardContent({ board }) {
         if (nextActiveColumn) {
           //Xóa card ở column active
           nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card._id !== activeDraggingCardId)
+
+          //Them placeholder card khi card rong tranh bug
+          if (isEmpty(nextActiveColumn.cards)) {
+            nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+          }
+
           //Cap nhat lai mang cardOrderIds
           nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card._id)
         }
@@ -126,6 +133,8 @@ function BoardContent({ board }) {
           nextOverColumn.cards = nextOverColumn.cards.filter(card => card._id !== activeDraggingCardId)
           //Tiep theo them card vao cot voi vi tri index moi
           nextOverColumn.cards = nextOverColumn.cards.toSpliced(newCardIndex, 0, activeDraggingCardData)
+          //Xoa placeholder card
+          nextOverColumn.cards = nextOverColumn.cards.filter(card => !card.FE_PlaceHolderCard)
           //Cap nhat lai mang cardOrderIds
           nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card._id)
         }
@@ -223,10 +232,12 @@ function BoardContent({ board }) {
     }
 
     const pointerIntersections = pointerWithin(args)
-    const intersections = !!pointerIntersections?.length
-      ? pointerIntersections
-      : rectIntersection(args)
-    let overId = getFirstCollision(intersections, 'id')
+    if (!pointerIntersections?.length) return
+    // const intersections = !!pointerIntersections?.length
+    //   ? pointerIntersections
+    //   : rectIntersection(args)
+
+    let overId = getFirstCollision(pointerIntersections, 'id')
     if (overId) {
       const checkColumn = orderredColumns.find(column => column._id === overId)
       if (checkColumn) {
